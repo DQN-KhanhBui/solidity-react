@@ -1,12 +1,28 @@
 import React from 'react';
 import './App.scss';
 import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 const App = () => {
   return (
-    <center>
-      <Button variant="primary">bdnkhanh</Button>
-    </center>
+    <React.Fragment>
+      <Card className="text-center mx-5 mt-5">
+        <Card.Header>Training Solidity with ReactJS and Truffle - Ganache - Metamask</Card.Header>
+        <Card.Body>
+          <Card.Title>Current Balance: 10ETH</Card.Title>
+          <Card.Text>
+            Account Address: 0x132C06849aDB4B76D5C356fd5C8B86f121EFBC00
+          </Card.Text>
+          <ButtonGroup>
+            <Button variant="success">Donate</Button>
+            <Button variant="danger" className="mx-2">Withdraw</Button>
+            <Button variant="primary">Connect Wallets</Button>
+          </ButtonGroup>
+        </Card.Body>
+        <Card.Footer className="text-muted">Now</Card.Footer>
+    </Card>
+    </React.Fragment>
   );
 };
 
