@@ -37,7 +37,7 @@ const App = () => {
     await web3Api.provider.request({method: "eth_requestAccounts"});
     if (web3Api.web3 != null) {
       const _walletAddress = await web3Api.web3.eth.getAccounts();
-      const _balance = await web3Api.web3.eth.getBalance(`${_walletAddress}`);
+      const _balance = await web3Api.web3.eth.getBalance(web3Api.contract.address);
       setWalletAddress(_walletAddress);
       setBalance(web3Api.web3.utils.fromWei(_balance, "ether"));
     }
