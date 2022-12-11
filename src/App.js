@@ -5,42 +5,57 @@ import Card from 'react-bootstrap/Card';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Web3 from 'web3';
 import detectEthereumProvider from '@metamask/detect-provider';
+import { loadContract } from "./utils/loadContract";
 
 const App = () => {
   const [web3Api, setWeb3Api] = useState({
+    web3: null,
     provider: null,
-    web3: null
+    contract: null
   });
+  const [walletAddress, setWalletAddress] = useState("Pls, you must loggin Metamask!");
+  const [balance, setBalance] = useState(0);
 
   useEffect(() => {
     const loadProvider = async () => {
       const provider = await detectEthereumProvider();
+      const contract = await loadContract("Wallet", provider);
       if (provider) {
-        provider.request({method: "eth_requestAccounts"});
-        // setWeb3Api({
-        //   provider: provider,
-        //   web3: new Web3(provider)
-        // })
+        setWeb3Api({
+          web3: new Web3(provider),
+          provider: provider,
+          contract: contract
+        })
       } else {
-        console.log("Pls, install metamask!");
+        setWalletAddress("Pls, install metamask!");
       }
     }
     loadProvider();
   }, []);
+
+  const loginMetamask = async () => {
+    await web3Api.provider.request({method: "eth_requestAccounts"});
+    if (web3Api.web3 != null) {
+      const _walletAddress = await web3Api.web3.eth.getAccounts();
+      const _balance = await web3Api.web3.eth.getBalance(`${_walletAddress}`);
+      setWalletAddress(_walletAddress);
+      setBalance(web3Api.web3.utils.fromWei(_balance, "ether"));
+    }
+  }
 
   return (
     <React.Fragment>
       <Card className="text-center mx-5 mt-5">
         <Card.Header>Training Solidity with ReactJS and Truffle - Ganache - Metamask</Card.Header>
         <Card.Body>
-          <Card.Title>Current Balance: 10ETH</Card.Title>
+          <Card.Title>Current Balance: {balance} ETH</Card.Title>
           <Card.Text>
-            Account Address: 0x132C06849aDB4B76D5C356fd5C8B86f121EFBC00
+            Wallets Address: {walletAddress}
           </Card.Text>
           <ButtonGroup>
-            <Button variant="success">Donate</Button>
-            <Button variant="danger" className="mx-2">Withdraw</Button>
-            <Button variant="primary">Connect Wallets</Button>
+            <Button variant="outline-success">Donate</Button>
+            <Button variant="outline-danger" className="mx-2">Withdraw</Button>
+            <Button variant="outline-primary" onClick={loginMetamask}>Connect Wallets</Button>
           </ButtonGroup>
         </Card.Body>
         <Card.Footer className="text-muted">Now</Card.Footer>
