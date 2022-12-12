@@ -20,6 +20,7 @@ const App = () => {
     const loadProvider = async () => {
       const provider = await detectEthereumProvider();
       const contract = await loadContract("Wallet", provider);
+      console.log(contract);
       if (provider) {
         setWeb3Api({
           web3: new Web3(provider),
@@ -33,14 +34,37 @@ const App = () => {
     loadProvider();
   }, []);
 
+  const getWalletAddressAndBalance = async () => {
+    const { web3 } = web3Api;
+    const _walletAddress = await web3.eth.getAccounts();
+    const _balance = await web3.eth.getBalance(`${_walletAddress}`);
+    setWalletAddress(_walletAddress);
+    setBalance(web3.utils.fromWei(_balance, "ether"));
+  }
+
   const loginMetamask = async () => {
     await web3Api.provider.request({method: "eth_requestAccounts"});
     if (web3Api.web3 != null) {
-      const _walletAddress = await web3Api.web3.eth.getAccounts();
-      const _balance = await web3Api.web3.eth.getBalance(web3Api.contract.address);
-      setWalletAddress(_walletAddress);
-      setBalance(web3Api.web3.utils.fromWei(_balance, "ether"));
+      getWalletAddressAndBalance();
     }
+  }
+
+  const addFunder = async () => {
+    const { web3, contract } = web3Api;
+    await contract.addFunder({
+      from: `${walletAddress}`,
+      value: web3.utils.toWei("1", "ether")
+    });
+    getWalletAddressAndBalance();
+  }
+
+  const withdraw = async () => {
+    const { web3, contract } = web3Api;
+    const withdrawAmount = web3.utils.toWei("0.5", "ether");
+    await contract.withdraw(withdrawAmount, {
+      from: `${walletAddress}`
+    });
+    getWalletAddressAndBalance();
   }
 
   return (
@@ -53,8 +77,8 @@ const App = () => {
             Wallets Address: {walletAddress}
           </Card.Text>
           <ButtonGroup>
-            <Button variant="outline-success">Donate</Button>
-            <Button variant="outline-danger" className="mx-2">Withdraw</Button>
+            <Button variant="outline-success" onClick={addFunder}>Donate</Button>
+            <Button variant="outline-danger" className="mx-2" onClick={withdraw}>Withdraw</Button>
             <Button variant="outline-primary" onClick={loginMetamask}>Connect Wallets</Button>
           </ButtonGroup>
         </Card.Body>
