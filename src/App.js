@@ -13,14 +13,15 @@ const App = () => {
     provider: null,
     contract: null
   });
-  const [walletAddress, setWalletAddress] = useState("Pls, you must loggin Metamask!");
-  const [balance, setBalance] = useState(0);
+  const [walletGanache, setWalletGanache] = useState("Pls, you must loggin Metamask!");
+  const [balanceGanache, setBalanceGanache] = useState(0);
+  const [walletContract, setWalletContract] = useState("Pls, you must loggin Metamask!");
+  const [balanceContract, setBalanceContract] = useState(0);
 
   useEffect(() => {
     const loadProvider = async () => {
       const provider = await detectEthereumProvider();
       const contract = await loadContract("Wallet", provider);
-      console.log(contract);
       if (provider) {
         setWeb3Api({
           web3: new Web3(provider),
@@ -28,62 +29,81 @@ const App = () => {
           contract: contract
         })
       } else {
-        setWalletAddress("Pls, install metamask!");
+        setWalletGanache("Pls, install metamask!");
       }
     }
     loadProvider();
   }, []);
 
-  const getWalletAddressAndBalance = async () => {
-    const { web3 } = web3Api;
-    const _walletAddress = await web3.eth.getAccounts();
-    const _balance = await web3.eth.getBalance(`${_walletAddress}`);
-    setWalletAddress(_walletAddress);
-    setBalance(web3.utils.fromWei(_balance, "ether"));
+  const getWalletGanacheAndBalanceGanache = async () => {
+    const { web3, contract } = web3Api;
+    const _walletGanache = await web3.eth.getAccounts();
+    const _balanceGanache = await web3.eth.getBalance(`${_walletGanache}`);
+    setWalletGanache(_walletGanache);
+    setBalanceGanache(web3.utils.fromWei(_balanceGanache, "ether"));
+    const _walletContract = contract.address;
+    const _balanceContract = await web3.eth.getBalance(contract.address);
+    setWalletContract(_walletContract);
+    setBalanceContract(web3.utils.fromWei(_balanceContract, "ether"));
   }
 
   const loginMetamask = async () => {
     await web3Api.provider.request({method: "eth_requestAccounts"});
     if (web3Api.web3 != null) {
-      getWalletAddressAndBalance();
+      getWalletGanacheAndBalanceGanache();
     }
   }
 
   const addFunder = async () => {
     const { web3, contract } = web3Api;
     await contract.addFunder({
-      from: `${walletAddress}`,
+      from: `${walletGanache}`,
       value: web3.utils.toWei("1", "ether")
     });
-    getWalletAddressAndBalance();
+    getWalletGanacheAndBalanceGanache();
   }
 
   const withdraw = async () => {
     const { web3, contract } = web3Api;
     const withdrawAmount = web3.utils.toWei("0.5", "ether");
     await contract.withdraw(withdrawAmount, {
-      from: `${walletAddress}`
+      from: `${walletGanache}`
     });
-    getWalletAddressAndBalance();
+    getWalletGanacheAndBalanceGanache();
   }
 
   return (
     <React.Fragment>
-      <Card className="text-center mx-5 mt-5">
+      {/* Wallet Ganache */}
+      <Card className="text-center mx-5 mt-4">
         <Card.Header>Training Solidity with ReactJS and Truffle - Ganache - Metamask</Card.Header>
         <Card.Body>
-          <Card.Title>Current Balance: {balance} ETH</Card.Title>
+          <Card.Title>Current Balance: {balanceGanache} ETH</Card.Title>
           <Card.Text>
-            Wallets Address: {walletAddress}
+            Wallets Address: {walletGanache}
           </Card.Text>
           <ButtonGroup>
             <Button variant="outline-success" onClick={addFunder}>Donate</Button>
             <Button variant="outline-danger" className="mx-2" onClick={withdraw}>Withdraw</Button>
-            <Button variant="outline-primary" onClick={loginMetamask}>Connect Wallets</Button>
           </ButtonGroup>
         </Card.Body>
-        <Card.Footer className="text-muted">Now</Card.Footer>
-    </Card>
+        <Card.Footer className="text-muted">Wallet Ganache</Card.Footer>
+      </Card>
+      {/* Login Metamask */}
+      <div className="mt-4 d-flex justify-content-center">
+        <Button variant="outline-primary" onClick={loginMetamask}>Connect Wallets</Button>
+      </div>
+      {/* Wallet Contract */}
+      <Card className="text-center mx-5 mt-4">
+          <Card.Header>Training Solidity with ReactJS and Truffle - Ganache - Metamask</Card.Header>
+          <Card.Body>
+            <Card.Title>Current Balance: {balanceContract} ETH</Card.Title>
+            <Card.Text>
+              Wallets Address: {walletContract}
+            </Card.Text>
+          </Card.Body>
+          <Card.Footer className="text-muted">Wallet Contract</Card.Footer>
+      </Card>
     </React.Fragment>
   );
 };
