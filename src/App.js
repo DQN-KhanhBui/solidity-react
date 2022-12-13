@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './App.scss';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Web3 from 'web3';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { loadContract } from "./utils/loadContract";
@@ -82,10 +81,7 @@ const App = () => {
           <Card.Text>
             Wallets Address: {walletGanache}
           </Card.Text>
-          <ButtonGroup>
-            <Button variant="outline-success" onClick={addFunder}>Donate</Button>
-            <Button variant="outline-danger" className="mx-2" onClick={withdraw}>Withdraw</Button>
-          </ButtonGroup>
+          <Button variant="outline-success" onClick={addFunder}>Donate</Button>
         </Card.Body>
         <Card.Footer className="text-muted">Wallet Ganache</Card.Footer>
       </Card>
@@ -101,6 +97,7 @@ const App = () => {
             <Card.Text>
               Wallets Address: {walletContract}
             </Card.Text>
+            <Button variant="outline-danger" className="mx-2" onClick={withdraw}>Withdraw</Button>
           </Card.Body>
           <Card.Footer className="text-muted">Wallet Contract</Card.Footer>
       </Card>
